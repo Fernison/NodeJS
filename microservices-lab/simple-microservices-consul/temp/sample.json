@@ -1,0 +1,7 @@
+{
+  "ID": "mem3",
+  "Name": "Memory utilization",
+  "HTTP": "http://localhost:8080/health",
+  "Interval": "5s",
+  "Timeout": "1s"
+}
