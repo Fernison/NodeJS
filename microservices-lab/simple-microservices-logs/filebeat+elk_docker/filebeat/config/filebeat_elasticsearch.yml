@@ -1,0 +1,53 @@
+#==========================  Modules configuration =============================
+filebeat.modules:
+
+#------------------------------- System Module -------------------------------
+- module: system
+  # Syslog
+  syslog:
+    enabled: true
+    var.paths: ["/var/log/syslog*"]
+  auth:
+    enabled: true
+    var.paths: ["/var/log/auth.log*"]
+
+#------------------------------- Auditd Module -------------------------------
+# Does not look like Auditd is supported in Alpine linux:
+# https://github.com/linuxkit/linuxkit/issues/52
+- module: auditd
+  log:
+    enabled: false
+
+#=========================== Filebeat prospectors ==============================
+filebeat.prospectors:
+- type: log
+  enabled: true
+  paths:
+    - '/data/*.log'
+  json.message_key: log
+  json.add_error_key: true
+  json.keys_under_root: true
+  processors:
+    - add_locale: ~
+  multiline.pattern: "^\t|^[[:space:]]+(at|...)|^Caused by:"
+  multiline.match: after
+
+#========================== Elasticsearch output ===============================
+output.elasticsearch:
+  # hosts: ["${ELASTICSEARCH_HOST}:9200"]
+  hosts: ["elasticsearch:9200"]
+  username: elastic
+  password: changeme
+
+xpack.monitoring:
+  enabled: true
+  elasticsearch:
+
+#============================== Dashboards =====================================
+setup.dashboards:
+  enabled: true
+setup.kibana:
+  # host: "${KIBANA_HOST}:5601"
+  host: "kibana:5601"
+  username: elastic
+  password: changeme

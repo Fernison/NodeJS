@@ -31,8 +31,12 @@ var watch = (consul) => {
 
 }
 
-consulDataInstances = () => {
-  return known_data_instances;
+consulDataInstances = (value, func) => {
+  var instance=known_data_instances.get(value);
+  if(instance===undefined) {
+    return func('No service found!!!', undefined);
+  }
+  func(null, instance);
 };
 
 module.exports={watch, consulDataInstances};

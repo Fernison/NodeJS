@@ -14,6 +14,8 @@ const consulInit = require('./consul/consul-init');
 const consulWatcher = require('./consul/consul-watcher');
 const {watch} = require('./consul/consul-watcher');
 var {consulDataInstances} = require('./consul/consul-watcher');
+const {initKV} = require('./consul/consul-kv');
+const {valueKV} = require('./consul/consul-kv');
 
 const PID = process.pid;
 const PORT = process.env.PORT || 3000;
@@ -30,7 +32,7 @@ app.use(bodyParser.json());
 // Load health API endpoint //
 healthAPI(app);
 // Load routes API endpoint //
-routesAPI(app, CONSUL_ID, consulDataInstances);
+routesAPI(app, consulDataInstances, consul);
 
 // Server start //
 app.listen(PORT, () => {
@@ -57,6 +59,8 @@ app.listen(PORT, () => {
   console.log(`PID: ${PID}, PORT: ${PORT}, ID: ${CONSUL_ID}`);
   consulInit(consul, details, CONSUL_ID);
   watch(consul);
+  // No puedo hacer esto porque consul.kv.get trabaja con callbacks //
+  //initKV(consul);
   console.log(`Server listening on port ${PORT}`);
 });
 

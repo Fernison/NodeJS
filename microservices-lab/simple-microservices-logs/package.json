@@ -1,0 +1,27 @@
+{
+  "name": "simple-microservices-logs",
+  "version": "1.0.0",
+  "description": "Este ejemplo es un servicio simple que recibe una petición GET.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "export NODE_ENV=test || SET \"NODE_ENV=test\" && mocha server/**/*.test.js --exit",
+    "test-watch": "nodemon --exec \"npm test\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "bunyan": "^1.8.12",
+    "express": "^4.16.3",
+    "http-status": "^1.1.0",
+    "npm": "^6.1.0"
+  },
+  "devDependencies": {
+    "expect": "^22.4.3",
+    "i": "^0.3.6",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.17.4",
+    "supertest": "^3.1.0"
+  }
+}
