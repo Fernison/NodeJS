@@ -1,6 +1,7 @@
 {
   "development": {
-    "PORT": 3003
+    "PORT": 3003,
+    "LOGS_PATH": "./logs/logs.log"
   },
   "test": {
     "PORT": 3003

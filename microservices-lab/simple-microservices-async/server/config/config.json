@@ -1,0 +1,11 @@
+{
+  "development": {
+    "PORT": 3003,
+    "LOGS_PATH": "./logs/logs2.log",
+    "KAFKA_HOST": "localhost:9092"
+  },
+  "test": {
+    "PORT": 3003,
+    "LOGS_PATH": "./logs/logs2.log"
+  }
+}

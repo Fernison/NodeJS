@@ -1,3 +1,16 @@
+/*
+Principios de programación funcional:
+- Pureza
+- Inmutabilidad
+- Recursividad
+- High order function (1st class citizens)
+- Function composition
+- Curriying
+- Tipado ligero
+- Common function (kill boilerplate)
+- Execution order (paraller execution)
+*/
+
 /************ Immutability *************/
 /*
 The first thing to consider is immutability. In ES2015, or ES6 as it was called, there is a new keyword called const.
@@ -24,7 +37,7 @@ Unfortunately, we can only do so via a library called "Immutable.js". This may g
 it does so in a way that makes our code look more like Java than Javascript.
 */
 
-/************ Currying and Composition *************/
+/************ Curriying and Composition *************/
 /*
 Earlier in this series, we learned how to write functions that are curried. Here’s a more complex example:
 */

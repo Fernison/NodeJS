@@ -11,7 +11,7 @@ const routesAPI = require('./api/routes')
 var log = bunyan.createLogger({
   name: 'myApp',
   streams: [{
-        path: './logs/logs.log',
+        path: process.env.LOGS_PATH,
         level: 'debug'
     }]
 });
