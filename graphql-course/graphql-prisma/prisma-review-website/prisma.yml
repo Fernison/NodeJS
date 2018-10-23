@@ -1,0 +1,5 @@
+# La URL termina con el Service y el Stage (default, dev, test, pre, ...)
+# Si no se pone ninguno se usa default en ambos
+# Esta información se refleja en BBDD en el nombre del esquema
+endpoint: http://localhost:4466/reviews/default
+datamodel: datamodel.graphql

@@ -44,6 +44,25 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
 
   - Manipula los datos (CUD)
 
+### Subscription
+
+  - Notifica los cambios en los datos.
+  - Usa Web Sockets
+  - Yoga usa por debajo la librería 'graphql-subscriptions':
+    - Pub: publish
+    - Sub: Subscribe
+
+### Enums
+
+  - Como las enumeraciones de Java
+    - 'UserRole - standard, editor, admin'
+
+  ```json
+    type User {
+      role: UserRole! // El valor tiene que ser uno de los de la enumeración
+    }
+  ```
+
 ## Babel
 
   - www.babeljs.io
@@ -107,6 +126,109 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
       ...object_one // Copia las propiedades de one a two sin necesidad de copy-paste
     }
   ```
+
+## Prisma
+
+  - https://www.prisma.io/
+  - Como un ORM preparado para GraphQL.
+  - *ES UN SERVIDOR A PARTE. NO ES UN ORM INTEGRADO EN EL PROYECTO.*
+  - Database agnostic (SQL y NoSQL) Actualmente: MySQL, PostGress, MongoDB
+  - Instalación en Windows:
+    - Instalar PostGres (la db seleccionada):
+      - Ir a Heroku: www.heroku.com y logarse (fernando.javadeveloper/J0rg32506) y crear una app y añadirle el plugin "Heroku Postgres".
+      - Instalar PGAdmin
+    - Docker para ejecutar un contenedor.
+  - Instalar el modulo NPM CLI de Prisma: `npm i -g prisma@1.12.0`
+  - Para crear un proyecto Prisma: `prisma init prisma`
+    - Responder a las preguntas. El nombre del esquema es: "schema.graphql"
+  - Al finalizar se crean 3 ficheros:    
+    - 'prisma.yml'           Prisma service definition
+    - 'datamodel.graphql'    GraphQL SDL-based datamodel (foundation for database). Contiene los Type Definitions. Se usa para crear la BBDD
+    - 'docker-compose.yml'   Docker configuration file
+      - Borramos 'schema: schema.graphql' y añadimos 'ssl: true' para que funcione con Heroku que es SSL
+  - Para arrancar Prisma:
+    - `prisma/docker-compose up -d`
+    - `prisma deploy` Se debe ejedockercutar cada vez que se hagan cambios en Prisma
+  - Para ver el GraphQL Playground: http://localhost:4466
+  - Por defecto, Prisma crea un esquema que contiene las operaciones (query, mutation, subscription) por defecto de CRUD.
+  - Para crear un usuario de prueba:
+  
+    ```json
+    mutation {
+      createUser(
+        data: {
+          name: "Heinz"
+        }
+      ) {
+        id    
+        name
+      }
+    }
+    ```
+  - Cuando se modifica el esquema y se añade/modifica algún atributo obligatorio, si en la BBDD que se modifica no existe ese campo con algún valor da un error:
+    `User
+    × You are creating a required field but there are already nodes present that would violate that constraint.`
+    Esto tiene un problema con los datos ya existentes si estamos en BBDD de producción.
+  - '@unique' es una directiva de GraphQL. Indica que el campo es único. Para usarlas se pone "@" y la directiva. @unique es obligatorio en atributos de tipo ID
+  - Cuando hay relaciones entre tipos, Prisma crea tablas nuevas para representar esas relaciones, por ejemplo: _PostToUser
+  - Para crear un Post de un User existente:
+
+  ```json
+  mutation {
+    createPost(
+      data: {
+        title: "Post con Prisma2"
+        body: "Body Prisma2"
+        published: false
+        author: {
+          connect: {
+            id: "cjnd7vhnd000g0789nytaiddc"
+          }
+        }
+      })
+    {
+      id
+      title
+      body
+      published
+      author {
+        name
+      }
+    }
+  }
+  ```
+
+### Integración Prisma con NodeJs
+
+  - 'prisma-binding'. Instalar: `npm i prisma-binding@2.1.1`
+  - 'graphql-cli'. Utilidades. Sirve, por ejemplo. migra un esquema a otro. Instalar: `npm i graphql-cli@2.16.4`
+    - '.graphqlconfig'. Para configurarlo:
+    ```json
+    {
+      "projects": {
+          "prisma": { // Nombre del proyecto. Se puede poner lo que se quiera
+              "schemaPath": "./src/generated/prisma.graphql", // La ruta donde se almacenará el esquema al que se ha migrado
+              "extensions": {
+                  "endpoints": {
+                      "default": "http://localhost:4466" // La URL de Prisma
+                  }    
+              }            
+          }
+      }
+    }
+    ```
+    - En 'package.json' se añade en "scripts": `"get-schema": "graphql get-schema -p prisma"` para que se genere el esquema. 
+    - El esquema se genera a partir del esquema situado en: './[prisma]/datamodel.graphql'
+    - Se ejecuta con `npm run get-schema`. El fichero que se crea no se debe tocar manualmente. Sólo cuando regeneramos el esquema
+
+
+### Relaciones entre tipos
+
+  - Para poder borrar elementos que tengan dependencias con otros (típico error de base de datos)
+  - Se puede jugar con los nulls, haciendo que los campos necesarios sean nullables o con Cascades
+  - Para ello se usa la directiva de Prisma: '@relation'. 
+    - Usage: `@relation(name: "[NOMBRE_DESCRIPTIVO (por ejemplo, el nombre de la relación)]", onDelete: [SET_NULL (por defecto)|CASCADE])`
+  - Una vez modificado el esquema hay que volver a desplegarlo
 
 
 ## Interesante

@@ -6,6 +6,7 @@ import Subscription from './resolvers/Subscription'
 import Post from './resolvers/Post'
 import User from './resolvers/User'
 import Comment from './resolvers/Comment'
+import './prisma' // Se puede poner así ya que no se importa ningún atributo
 
 const pubsub = new PubSub()
 
