@@ -54,29 +54,51 @@ const Mutation = {
             token: jwt.sign({ userId: user.id}, 'thisisasecret')
         }    
     },
-    async deleteUser(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)        
-        const userExist=await prisma.exists.User({ id: userId })
+    async deleteUser(parent, args, { prisma }, info) {
+        const userExist=await prisma.exists.User({ id: args.id })
         if(!userExist) {
-            throw new Error(`User ${userId} does not exist`)
+            throw new Error(`User ${args.id} does not exist`)
         }
         // Si se devuelve la propia llamada al método no es necesario porner await
         return prisma.mutation.deleteUser({ 
             where: {
-                id: userId 
+                id: args.id 
             }
         }, info)
     },
-    async updateUser(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)
+    async updateUser(parent, args, { prisma }, info) {
         // Como los atributos de mi esquema son los mismos que los de Prisma se pueden pasar directamente
         // Prisma sabe qué atributos cambiar
         return await prisma.mutation.updateUser({
             where: {
-                id: userId
+                id: args.id
             },
             data: args.data
         }, info)
+
+        // Mi forma. Lo compruebo yo manualmente //
+/*         const {id, data} = args
+        const userExist=await prisma.exists.User({ id: id })
+        if(!userExist) {
+            throw new Error(`User ${id} does not exist`)
+        }
+        const dataPrisma = {}
+        if(typeof data.email === 'string') {
+            const emailTaken=await prisma.exists.User({email: data.email})
+            if(emailTaken) { // Lanza un error si el mail ya está cogido
+                throw new Error(`Email ${args.data.email} taken`)
+            }
+            dataPrisma.email=data.email
+        }
+        if(typeof data.name === 'string') {
+            dataPrisma.name=data.name
+        }
+        return await prisma.mutation.updateUser({
+            where: {
+                id: id
+            },
+            data: dataPrisma
+        }, info) */
     },
     createPost(parent, args, { prisma, request }, info) {
         const userId=getUserId(request)
@@ -93,37 +115,15 @@ const Mutation = {
             }    
         }, info)
     },        
-    async deletePost(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)
-        // Se comprueba si existe un 
-        const postExists=await prisma.exists.Post({
-            id: args.id,
-            author: {
-                id: userId
-            }
-        })
-        if(!postExists) {
-            throw new Error(`Not found post ${args.id}`)
-        }
+    async deletePost(parent, args, { prisma, pubsub }, info) {
         return prisma.mutation.deletePost({ 
             where: {
                 id: args.id
             }        
         }, info)
     },
-    async updatePost(parent, args, { prisma, request }, info) {
+    async updatePost(parent, args, { prisma, pubsub }, info) {
         const {id, data} = args // Desestructura los atributos del objeto
-        const userId=getUserId(request)
-        console.log(userId)
-        const postExists=await prisma.exists.Post({
-            id: id,
-            author: {
-                id: userId
-            }
-        })
-        if(!postExists) {
-            throw new Error(`Not found post ${args.id}`)
-        }
         // Obtener el post original //
         const originalPost=await prisma.query.post({
             where: {
@@ -140,16 +140,10 @@ const Mutation = {
             data: data
         }, info)        
     },
-    async createComment(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)
-        const postExists=await prisma.exists.Post({
-            id: args.data.post,
-            author: {
-                id: userId
-            }
-        })
-        if(!postExists) {
-            throw new Error(`Not found post ${args.data.post}`)
+    async createComment(parent, args, { prisma, pubsub }, info) {
+        const authorExists=await prisma.exists.User({ id: args.data.author })
+        if(!authorExists) { // Lanza un error si el usuario no existe
+            throw new Error(`Author "${args.data.author}" does not exist`)
         }
         const post=await prisma.query.post({ 
             where: {
@@ -164,7 +158,7 @@ const Mutation = {
                 text: args.data.text,
                 author: {
                     connect: {
-                        id: userId
+                        id: args.data.author
                     }
                 },
                 post: {
@@ -175,34 +169,14 @@ const Mutation = {
             }
         }, info)
     },        
-    async deleteComment(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)
-        const commentExists=await prisma.exists.Comment({
-            id: args.id,
-            author: {
-                id: userId
-            }
-        })
-        if(!commentExists) {
-            throw new Error(`Comment ${args.id} does not exist`)
-        }
+    deleteComment(parent, args, { prisma, pubsub }, info) {
         return prisma.mutation.deleteComment( {
             where: {
                 id: args.id
             }
         }, info)
     },
-    async updateComment(parent, args, { prisma, request }, info) {
-        const userId=getUserId(request)
-        const commentExists=await prisma.exists.Comment({
-            id: args.id,
-            author: {
-                id: userId
-            }
-        })
-        if(!commentExists) {
-            throw new Error(`Comment ${args.id} does not exist`)
-        }
+    async updateComment(parent, args, { prisma, pubsub }, info) {
         return prisma.mutation.updateComment({            
             where: {
                 id: args.id

@@ -31,6 +31,8 @@ services:
     restart: always
     ports:
       - "5432:5432"
+    volumes:
+       - db_data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: prisma
       POSTGRES_PASSWORD: secreta
@@ -41,6 +43,11 @@ services:
           - posgres_db
 
 #####################################################################
+# Volumes
+
+volumes:
+  db_data:
+
 # Networks
 
 networks:

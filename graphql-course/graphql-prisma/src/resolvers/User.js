@@ -1,14 +1,14 @@
-const User = { // En las relaciones, hay que indicar en los resolvers como obtener la información a los que se hace referencia
-    // Se llama a esta función por cada user que se haya devuelto
-    posts(parent, args, {db}, info) {            
-        return db.posts.filter(post => {
-            return post.author === parent.id // Devuelve los posts del usuario
-        })
-    },
-    comments(parent, args, {db}, info)  {
-        return db.comments.filter((comment) => {
-            return comment.author === parent.id
-        })
+import getUserId from '../utils/getUserId';
+
+const User = { 
+    // Comprobar que email se puede devolver
+    // Tratamiento especifico de este atributo (email) de User
+    email(parent, args, { prisma, request }, info) {
+        const userId=getUserId(request, false)    
+        if(userId && userId===parent.id) { // Si está autenticado y userId coincide con el del parent (OJO: Esto se puede hacer si en la query se solicita el id del User)
+            return parent.email
+        }
+        return null
     }
 }
 

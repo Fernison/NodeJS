@@ -67,6 +67,7 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
 
   - www.babeljs.io
   - Compilador de Javascript. Hace compatible el código de ES5 con clientes más antiguos.
+  - Es conveniente instalarlo global '-g'
   - Instalación: `npm install babel-cli@6.26.0 babel-preset-env@1.7.0`
   - Se configura en el fichero _.babelrc_ que se ubica en la raiz del proyecto:
   
@@ -148,7 +149,7 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
       - Borramos 'schema: schema.graphql' y añadimos 'ssl: true' para que funcione con Heroku que es SSL
   - Para arrancar Prisma:
     - `prisma/docker-compose up -d`
-    - `prisma deploy` Se debe ejedockercutar cada vez que se hagan cambios en Prisma
+    - `prisma deploy` Se debe ejecutar cada vez que se hagan cambios en Prisma
   - Para ver el GraphQL Playground: http://localhost:4466
   - Por defecto, Prisma crea un esquema que contiene las operaciones (query, mutation, subscription) por defecto de CRUD.
   - Para crear un usuario de prueba:
@@ -221,7 +222,6 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
     - El esquema se genera a partir del esquema situado en: './[prisma]/datamodel.graphql'
     - Se ejecuta con `npm run get-schema`. El fichero que se crea no se debe tocar manualmente. Sólo cuando regeneramos el esquema
 
-
 ### Relaciones entre tipos
 
   - Para poder borrar elementos que tengan dependencias con otros (típico error de base de datos)
@@ -230,6 +230,40 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
     - Usage: `@relation(name: "[NOMBRE_DESCRIPTIVO (por ejemplo, el nombre de la relación)]", onDelete: [SET_NULL (por defecto)|CASCADE])`
   - Una vez modificado el esquema hay que volver a desplegarlo
 
+### Seguridad de Prisma
+
+  - A través de Secrets
+  - En 'prisma.yml' añadir: `secret: thisismysecreta`
+  - En Node añadir:
+  `
+    const prisma=new Prisma({
+      typeDefs: './src/generated/prisma.graphql', // No tiene que ser el de Prisma, ya que el de Prisma solo tiene el datamodel, no el resto de tipos
+      endpoint: 'http://localhost:4466', // La URL de Prisma
+      secret: 'thisismysecreta'
+    })
+  `
+  - Para poder hacer peticiones por http hay que añadir la cabecera http:
+  `{
+    "Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjp7InNlcnZpY2UiOiJkZWZhdWx0QGRlZmF1bHQiLCJyb2xlcyI6WyJhZG1pbiJdfSwiaWF0IjoxNTQwNDczMTk4LCJleHAiOjE1NDEwNzc5OTh9.SVAN2xXBx1QHm9neeTIP_DzTEH7uGf-LnSIyjyznFjw"
+  }`
+  donde lo que va después de Bearer es un token generado con la orden `prisma token`
+  - `prisma delete` borra todo un servicio de Prisma junto con sus datos
+  - Para que se puedan usar los comandos de Prisma hay que añadir en '.grapfqlconfig':
+    `...
+    "extensions": {
+                "prisma": "prisma/prisma.yml",
+    ...`
+    Para que se utilice la configuración indicada en el yml
+
+## Paswords
+
+  - Para hash: 'bcryptjs'. `npm install bcryptjs@2.4.3`
+  - Para JWT: 'jsonwebtoken'. `npm i jsonwebtoken@8.3.0`
+    -  'iat' es 'issued at', cuando se generó el token
+
+## Fragments
+
+  - 
 
 ## Interesante
 
@@ -247,6 +281,7 @@ Cada vez que se consulte por un "objeto" (entidad o type en terminología GraphQ
   - Es útil para escritura y borrado?
   - *uuid* para generar IDs:
     - `npm install uuid@3.3.2`
+  - Para desinstalar un paquete npm (en este ejemplo, uuid): `npm uninstall uuid`
 
 
 
